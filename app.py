@@ -1,6 +1,5 @@
 import tkinter as tk
-from customtkinter import CTk, CTkLabel, CTkFrame
-import pynput
+from customtkinter import CTk, CTkLabel, CTkFrame, CTkCanvas
 import mss
 from utils import predict   
 from PIL import Image   
@@ -8,54 +7,75 @@ import cv2
 import numpy as np 
 import clipboard
 import threading
-import time
 class App(CTk):
     def __init__(self):
         super().__init__()
 
         self.geometry("300x200")
         self.title("OCR")
-        self.mainFrame = CTkFrame(self)
-        self.label = CTkLabel(self.mainFrame, text="Press '.' to start selecting points...")
-        self.overlayFrame = CTkFrame(self)
-        self.label.pack(pady=20)
-        self.point_a = None 
-        self.point_b = None  
-        self.click_count = 0
-        self.mainFrame.pack()
-        thread = threading.Thread(target=self.run, daemon=True)
-        thread.start()
         
-    def on_press(self, key):
-          if key == pynput.keyboard.KeyCode(char='.'):
+        self.mainFrame = CTkFrame(self)
+        self.mainFrame.pack()
+        
+        self.label = CTkLabel(self.mainFrame, text="Press '.' to start selecting points...")
+        self.label.pack(pady=20)
+        
+        self.overlayFrame = CTkFrame(self)
+        
+        self.canvas = CTkCanvas(self.overlayFrame)
+        self.canvas.bind("<Button-1>", self.handle_click)
+        self.canvas.bind("<Motion>", self.handle_motion)
+        self.bind("<KeyPress>", self.handle_keypress)
+        self.canvas.pack(fill="both", expand=True)  
+        
+        self.first_click_x = None
+        self.first_click_y = None
+        self.rectangle_id = None
+        self.click_count = 0
+
+        # Bind keyboard event
+    def update_rectangle(self, event):
+        if self.rectangle_id:
+            self.canvas.coords(self.rectangle_id, self.first_click_x, self.first_click_y, event.x, event.y)
+    def handle_click(self, event):
+          if self.first_click_x is None and self.first_click_y is None : 
+               
+               self.first_click_x = event.x
+               self.first_click_y = event.y
+               self.rectangle_id = self.canvas.create_rectangle(self.first_click_x, self.first_click_y, self.first_click_x, self.first_click_y, outline='red')
+          else:
+               self.update_rectangle(event)
+               self.overlayFrame.pack_forget()
+               self.run(self.first_click_x, self.first_click_y, event.x, event.y)
+               self.attributes('-fullscreen', False)
+               self.wm_attributes('-alpha',1)
+               self.mainFrame.pack(fill="both", expand=True)
+               self.first_click_x = None
+               self.first_click_y = None
+               self.rectangle_id = None
+               self.canvas.delete("all")
+               self.allow_drawing = False
+    def handle_motion(self, event):
+        if self.first_click_x is not None and self.first_click_y is not None and self.allow_drawing:
+            self.update_rectangle(event)
+    def handle_keypress(self, event):
+          if event.char == '.': 
                self.mainFrame.pack_forget()
                self.attributes('-fullscreen', True)
                self.wm_attributes('-alpha',0.5)
                self.overlayFrame.pack(fill="both", expand=True)
-               return False
-    def on_click(self, x, y, button, pressed):
-          if pressed and button == pynput.mouse.Button.left:
-               if self.click_count == 0:
-                    self.point_a = (x, y)
-                    self.click_count += 1
-               elif self.click_count == 1:
-                    self.point_b = (x, y)
-                    self.click_count = 0
-                    self.overlayFrame.pack_forget()
-                    self.attributes('-fullscreen', False)
-                    self.wm_attributes('-alpha',1)
-                    self.mainFrame.pack(fill="both", expand=True)
-                    return False
-    def start_listening(self):
-          with pynput.keyboard.Listener(on_press=self.on_press) as listener:
-               listener.join()
-          with pynput.mouse.Listener(on_click=self.on_click) as listener:
-               listener.join()
-    def run(self) : 
-         while True: 
-               self.start_listening()
-               x1, y1 = self.point_a
-               x2, y2 = self.point_b
+               self.allow_drawing = True
+          elif event.keysym== 'Escape' : 
+               self.overlayFrame.pack_forget()
+               self.attributes('-fullscreen', False)
+               self.wm_attributes('-alpha',1)
+               self.mainFrame.pack(fill="both", expand=True)
+               self.first_click_x = None
+               self.first_click_y = None
+               self.rectangle_id = None
+               self.canvas.delete("all")
+               self.allow_drawing = False
+    def run(self, x1, y1, x2, y2) : 
                smaller_x = min(x1, x2)
                smaller_y = min(y1, y2)
                bigger_x = max(x1, x2)
