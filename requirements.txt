@@ -1,0 +1,8 @@
+customtkinter
+mss
+Pillow
+opencv-python
+numpy
+clipboard
+jaconv
+transformers

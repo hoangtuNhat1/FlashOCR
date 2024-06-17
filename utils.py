@@ -1,13 +1,6 @@
-from customtkinter import *   
-import pynput
-import cv2
-import numpy as np
-from PIL import Image
-import mss
 import re 
 import jaconv
-from transformers import AutoFeatureExtractor, AutoTokenizer, VisionEncoderDecoderModel, TrOCRProcessor
-import clipboard
+from transformers import AutoFeatureExtractor, AutoTokenizer, VisionEncoderDecoderModel
 model_path = './FinalModel/'
 feature_extractor = AutoFeatureExtractor.from_pretrained(model_path)
 tokenizer = AutoTokenizer.from_pretrained(model_path)

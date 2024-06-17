@@ -1,4 +1,3 @@
-import tkinter as tk
 from customtkinter import CTk, CTkLabel, CTkFrame, CTkCanvas
 import mss
 from utils import predict   
@@ -6,7 +5,6 @@ from PIL import Image
 import cv2  
 import numpy as np 
 import clipboard
-import threading
 class App(CTk):
     def __init__(self):
         super().__init__()
