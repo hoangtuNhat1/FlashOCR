@@ -8,7 +8,7 @@ import re
 import jaconv
 from transformers import AutoFeatureExtractor, AutoTokenizer, VisionEncoderDecoderModel, TrOCRProcessor
 import clipboard
-model_path = ''
+model_path = './FinalModel/'
 feature_extractor = AutoFeatureExtractor.from_pretrained(model_path)
 tokenizer = AutoTokenizer.from_pretrained(model_path)
 model = VisionEncoderDecoderModel.from_pretrained(model_path).to('cuda')
