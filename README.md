@@ -24,7 +24,7 @@ Follow these steps to set up the FlashOCR project on your local machine:
    ```bash
    pip install -r requirements.txt
 3. **Download OCR model weights**
-   Download the model weights required for the OCR. After downloading, update the model path in `utils.py` to point to the downloaded weights.
+   Download the [model weights](https://drive.google.com/file/d/1ql_28Un1OhI_lUUtkie0o5SggplvNRC5/view?usp=sharing)required for the OCR. After downloading, update the model path in `utils.py` to point to the downloaded weights.
 ## Usage
   ### Notes
   - This project utilizes the [Manga OCR](https://github.com/kha-white/manga-ocr/tree/master) for the OCR model. You can replace it with another model if desired.
